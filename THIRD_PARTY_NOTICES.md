@@ -1,6 +1,24 @@
 # Third-Party Notices
 
-OpenTypeless includes the following components for managed-cloud Ogg/Opus audio. The Opus codec is built statically into the desktop application; end users do not need to install a system codec. Building the desktop application requires Rust 1.82 or newer and CMake 3.16 or newer.
+## Reused application code
+
+This project includes code from OpenTypeless, licensed under the MIT License.
+
+- Source: https://github.com/tover0314-w/opentypeless
+- Imported revision: `f5ad60298f535e0fff716a749802138ee409dea7`
+- Copyright (c) 2025 OpenTypeless Contributors
+- Full license: [LICENSE](LICENSE)
+
+Upstream product documentation, promotion and repository automation are not part of the TypelessLocal project documentation. Some internal identifiers remain for compatibility with existing app settings.
+
+## Kubai Icons
+
+Copyright (c) 2026 Kubai087 and the Kubai Icons contributors. MIT License.
+
+- Source: https://github.com/kubai087/kubai-icons
+- Full license: [src/assets/kubai/LICENSE](src/assets/kubai/LICENSE)
+
+TypelessLocal includes the following components for managed-cloud Ogg/Opus audio. The Opus codec is built statically into the desktop application; end users do not need to install a system codec. Building the desktop application requires Rust 1.82 or newer and CMake 3.16 or newer.
 
 ## opusic-c 1.6.1
 

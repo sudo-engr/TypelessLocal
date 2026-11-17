@@ -1,9 +1,9 @@
 {
-  "name": "opentypeless",
+  "name": "typelesslocal",
   "private": true,
   "version": "1.1.64",
   "type": "module",
-  "description": "AI-powered speech-to-text and text polishing desktop app",
+  "description": "Local Whisper speech-to-text desktop app",
   "keywords": [
     "speech-to-text",
     "stt",
@@ -14,13 +14,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/tover0314-w/opentypeless"
+    "url": "https://github.com/sudo-engr/TypelessLocal.git"
   },
-  "homepage": "https://www.opentypeless.com",
+  "homepage": "https://github.com/sudo-engr/TypelessLocal",
   "bugs": {
-    "url": "https://github.com/tover0314-w/opentypeless/issues"
+    "url": "https://github.com/sudo-engr/TypelessLocal/issues"
   },
-  "author": "OpenTypeless Contributors",
+  "author": "TypelessLocal contributors",
   "license": "MIT",
   "scripts": {
     "dev": "vite",
