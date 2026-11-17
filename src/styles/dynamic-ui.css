@@ -1,0 +1,23 @@
+/*
+ * Values that change at runtime stay in CSS custom properties. Keeping the
+ * visual rules here lets components expose only their data, not ad-hoc style
+ * declarations.
+ */
+@utility ui-progress-width {
+  width: var(--ui-progress-width);
+}
+
+@utility ui-capsule-shell {
+  width: var(--ui-capsule-width);
+  height: var(--ui-capsule-height);
+}
+
+@utility ui-waveform-bar {
+  --ui-waveform-height: 3px;
+  --ui-waveform-opacity: 0.5;
+  height: var(--ui-waveform-height);
+  opacity: var(--ui-waveform-opacity);
+  transition:
+    height 75ms ease-out,
+    opacity 75ms ease-out;
+}

@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TypelessLocal Plan</title>
+<link rel="stylesheet" href="html-plan-runtime/htmlplan.css">
+<script src="html-plan-runtime/htmlplan.js" defer></script>
+<style data-mock-shared>
+.ui{font:14px/1.6 -apple-system,BlinkMacSystemFont,sans-serif;color:#182b32;background:#fff;border:1px solid #d5e0dd;border-radius:14px;overflow:hidden}.head{padding:16px 20px;background:#eff7f3;font-weight:700}.body{padding:20px}.row{padding:10px 0;border-bottom:1px solid #e8eeeb}.muted{color:#62766e;font-size:12px}.btn{display:inline-block;background:#155e45;color:white;padding:9px 16px;border-radius:8px;margin-top:12px}.badge{color:#155e45;background:#e6f4ed;border-radius:20px;padding:4px 10px;font-size:12px}.error{color:#a33333}.capsule{padding:18px;background:#19352e;color:white;border-radius:16px;text-align:center}.wave{letter-spacing:5px;color:#80e4b5;font-weight:700}
+</style>
+<body>
+<header>
+<h1>Local Korean Dictation in OpenTypeless</h1>
+<details class="thread"><summary>Why · 4 requests</summary>
+<doc-quote via="prompt" from="the user">api나 가입, 로그인 필요 없이 완전 로컬로 STT 가능한가?</doc-quote>
+<doc-quote via="prompt" from="the user">opentypeless 가 mit 라이센스니까 코드 재활용해서 완전 로컬로 바꿀수 있겠네</doc-quote>
+<doc-quote via="prompt" from="the user">로컬 Whisper의 한국어 받아쓰기 정확도</doc-quote>
+<doc-quote via="prompt" from="the user">모델은 처음 설치 후 인터넷에서 다운로드 하고 설정하는걸로</doc-quote>
+</details>
+</header>
+<main><doc-plan>
+<doc-claim>
+<p>The user can start without an account or API key.</p>
+<doc-mock frame="none" w="440"><template><div class="ui"><div class="head">TypelessLocal <span class="badge">오프라인</span></div><div class="body"><b>한국어 받아쓰기 시작하기</b><div class="row">① turbo (574MB) / large-v3 (1.08GB) 선택 및 다운로드</div><div class="row">② 마이크 권한 허용</div><div class="row" data-ref="model">③ 자동 입력을 위한 접근성 권한 허용</div><div class="muted">음성과 텍스트를 외부 서버로 보내지 않습니다.</div><span class="btn">마이크 테스트</span></div></div></template><doc-pin ref="model" title="First setup">Choose turbo for speed or large-v3 for accuracy comparison; download and validate before activation.</doc-pin></doc-mock>
+<doc-ask id="platform"><p>Which computers must the first version support?</p><label><input type="radio" name="platform" value="mac-arm" checked>macOS Apple Silicon <small>Measure one target first.</small></label><label><input type="radio" name="platform" value="all">macOS, Windows, and Linux <small>Add builds, permissions, and tests for each platform.</small></label></doc-ask>
+<doc-note>The target hardware is an assumption. The workspace now contains the upstream application source.</doc-note>
+<doc-claim><p>The local build rejects all cloud providers.</p>
+<doc-code title="Local build policy · sketch" lang="rust"><script type="text/plain">
+// Proposed rules; not an existing API.
+match config.stt_provider.as_str() {
+    "local-whisper" => load_local_model(&config.model_path),
+    _ => Err(AppError::Config("Select a local model".into())),
+}
+// Do not load account tokens in the local build.
+// Keep old data and keys; do not delete them.
+// Remove account and API-key steps from onboarding.
+// Audit startup, settings, and background tasks.
+</script></doc-code>
+<doc-claim at="src-tauri/src/stt/mod.rs:71"><p>src-tauri/src/stt/mod.rs:71 · create_provider()</p><doc-code src="src-tauri/src/stt/mod.rs" lines="71-86" lang="rust" caption="The upstream factory can create a cloud provider."></doc-code></doc-claim>
+</doc-claim>
+<doc-claim><p>The app accepts a valid model before it records audio.</p><doc-schema id="model-policy" lang="rust" title="Model policy · sketch"><script type="text/plain">
+enum ModelSource { Download, LocalFile }
+struct ModelPolicy {
+    source: ModelSource,
+    allowed_models: Vec<String>,
+    validate_format: bool,
+    validate_size: bool,
+    validate_sha256: bool,
+    download_in_app: bool, // true; user starts setup.
+}
+</script></doc-schema>
+<doc-note>The user chose a download after installation. The app pins the URL, size, and SHA256.</doc-note>
+<doc-note>Reject damaged files. Keep the last valid model if a replacement fails.</doc-note>
+</doc-claim>
+</doc-claim>
+
+<doc-claim>
+<p>The user can dictate Korean inside the app without a server.</p>
+<doc-machine name="dictation" caption="Each state shows the text that the user sees."><script type="text/plain">
+machine dictation initial ready
+state ready # The model is ready.
+state recording # The app captures audio.
+state transcribing # Whisper reads the audio.
+state done final # The app inserts the text.
+state cancelled final # The app discards the result.
+state failed # The app keeps an error message.
+
+| ready | recording | transcribing | done |
+| . | cancelled | failed | . |
+
+ready -press-> recording : Hotkey
+recording -release-> transcribing : Stop
+transcribing -success-> done : Insert
+recording -cancel-> cancelled : Escape
+transcribing -cancel-> cancelled : Escape
+transcribing -error-> failed : Error
+failed -retry-> ready : Retry
+</script>
+<div data-state="ready"><doc-mock frame="none" w="380"><template><div class="capsule">준비됨 · 한국어<br><span class="muted">단축키를 눌러 말하세요</span></div></template></doc-mock></div>
+<div data-state="recording"><doc-mock frame="none" w="380"><template><div class="capsule"><div class="wave">▂ ▅ ▇ ▃ ▆ ▂</div>듣고 있어요 · Esc로 취소</div></template></doc-mock></div>
+<div data-state="transcribing"><doc-mock frame="none" w="380"><template><div class="capsule">Whisper로 변환 중…<br>이 컴퓨터에서 처리합니다 · Esc로 취소</div></template></doc-mock></div>
+<div data-state="done"><doc-mock frame="none" w="380"><template><div class="ui"><div class="head">입력 완료</div><div class="body">내일 오후 세 시에 회의가 있습니다.</div></div></template></doc-mock></div>
+<div data-state="cancelled"><doc-mock frame="none" w="380"><template><div class="capsule">취소됨 · 텍스트를 입력하지 않았습니다.</div></template></doc-mock></div>
+<div data-state="failed"><doc-mock frame="none" w="380"><template><div class="ui"><div class="head error">음성 변환 실패</div><div class="body">모델과 사용 가능한 메모리를 확인하세요.<br><span class="btn">다시 시도</span></div></div></template></doc-mock></div>
+</doc-machine>
+<doc-claim><p>A native Whisper provider uses the existing STT contract.</p><doc-calls title="Native inference · proposed calls" caption="The new provider keeps the existing STT contract."><script type="text/plain">
+~ create_provider() @ src-tauri/src/stt/mod.rs:71
++   **LocalWhisperProvider** @ src-tauri/src/stt/local_whisper.rs:1
++     **load_model**() @ src-tauri/src/stt/local_whisper.rs:1
++     **transcribe_worker**() @ src-tauri/src/stt/local_whisper.rs:1
+</script></doc-calls>
+<doc-note>Use whisper.cpp in the app process. Select the Rust binding after source review and a build trial.</doc-note>
+<doc-claim at="src-tauri/src/stt/mod.rs:56"><p>src-tauri/src/stt/mod.rs:56 · SttProvider</p><doc-code src="src-tauri/src/stt/mod.rs" lines="55-69" lang="rust" caption="The existing contract supports a final transcript at disconnect."></doc-code></doc-claim>
+</doc-claim>
+<doc-claim><p>Only the current session can insert its final text.</p><doc-code title="Session rules · sketch" lang="rust"><script type="text/plain">
+// Proposed contract; not an existing function.
+assert_eq!(audio.sample_rate, 16_000);
+assert_eq!(audio.channels, 1);
+// One worker owns the model; the UI thread stays free.
+// Set language = "ko" and task = transcribe.
+// Reject empty audio before inference.
+// Bound the audio buffer and the record time.
+if cancelled || session_id != active_session_id {
+    return Ok(());
+}
+// Preserve the existing clipboard recovery on output failure.
+</script></doc-code></doc-claim>
+<doc-claim><p>The first version outputs text without an LLM.</p><doc-schema id="text-policy" title="Text policy · sketch" lang="rust"><script type="text/plain">
+struct TextPolicy {
+    polish: bool, // false
+    translate: bool, // false
+    ask_anything: bool, // false
+    local_dictionary: bool, // true
+    raw_audio_on_disk: bool, // false
+    history_enabled: bool, // User choice.
+}
+</script></doc-schema>
+<doc-ask id="polish"><p>Does the first version need an LLM?</p><label><input type="radio" name="polish" value="off" checked>No, dictation only <small>Keep one model and measure STT errors.</small></label><label><input type="radio" name="polish" value="local">Yes, add a local LLM <small>Replace claim 2.3; add model, memory, and meaning tests.</small></label></doc-ask>
+</doc-claim>
+</doc-claim>
+
+<doc-claim>
+<p>After model setup, the user can dictate with the network off.</p>
+<doc-mock frame="terminal" w="470" title="Release tests · target, not results"><template><span class="dim">Proposed release gates</span>
+First setup      → download → validate → activate
+Network disabled → start → dictate → restart
+After setup      → no background network requests
+No account, API key, or localhost server
+Audio on disk    → none by default
+Korean samples   → 50 or more
+Warm p95         → target ≤ 3 s / 10 s audio
+Normalized CER   → target ≤ 8%
+Silence tests    → zero inserted text</template></doc-mock>
+<doc-note>These values are targets, not results. Measure cold starts, memory, names, numbers, mixed languages, noise, and corrections.</doc-note>
+<doc-claim><p>Only explicit model setup can make a network request.</p><doc-calls title="Network removal · proposed changes" caption="Dictation makes no HTTP requests."><script type="text/plain">
+~ pre_warm() @ src-tauri/src/pipeline.rs:2982
++   **warm_local_model**() @ src-tauri/src/stt/local_whisper.rs:1
+-   pre_warm_endpoint() @ src-tauri/src/pipeline.rs:2964
+~ updater configuration @ src-tauri/tauri.conf.json:70
+</script></doc-calls>
+<doc-note>Keep auth, quota, updater, and remote assets disabled. Model setup alone uses HTTPS.</doc-note>
+<doc-claim at="src-tauri/tauri.conf.json:70"><p>src-tauri/tauri.conf.json:70 · updater</p><doc-code src="src-tauri/tauri.conf.json" lines="69-78" lang="json" caption="The upstream app includes a remote updater endpoint."></doc-code></doc-claim>
+</doc-claim>
+<doc-claim><p>Tests measure output errors and recovery before release.</p><doc-schema id="release-gates" title="Release gates · sketch" lang="rust"><script type="text/plain">
+struct ReleaseGates {
+    stt: Vec<&'static str>, // Format, silence, cancel, stale results.
+    model: Vec<&'static str>, // Missing, corrupt, memory, replacement.
+    output: Vec<&'static str>, // Permissions, recovery, duplicates.
+    network: Vec<&'static str>, // Setup download, offline dictation, restart.
+    korean: Vec<&'static str>, // CER, edits, names, numbers, mixed speech.
+    timing: Vec<&'static str>, // Cold load, warm p50/p95, peak memory.
+}
+</script></doc-schema>
+<doc-note>Freeze reference text and normalization rules. Compare turbo with large-v3 before the final model choice.</doc-note></doc-claim>
+</doc-claim>
+
+<doc-claim aux="shared"><p>Rust owns application logic; React uses shadcn/ui and Tailwind CSS.</p><doc-schema id="local-config" title="LocalConfig · sketch" lang="rust"><script type="text/plain">
+struct LocalConfig {
+    model_path: std::path::PathBuf,
+    model_sha256: String,
+    model_id: String, // Select large-v3-turbo or large-v3.
+    language: String, // Default: ko.
+    history_enabled: bool,
+}
+// No API keys, account tokens, or endpoint URLs.
+</script></doc-schema><doc-note>Use shadcn/ui for controls and Tailwind CSS for layout and style. Keep microphone and accessibility permission flows.</doc-note><doc-note>Keep MIT notices and dependency licenses. Give the fork its own app name and bundle ID.</doc-note></doc-claim>
+<doc-claim aux="scope"><p>The plan reuses capture, shortcuts, and text output.</p><ul><li>Use Rust for the STT engine and application logic. Use React with shadcn/ui and Tailwind CSS for the UI.</li><li>Do not add diarization, live partial text, translation, or voice Q&amp;A.</li><li>Use a Rust adapter for Whisper. The native engine can use C/C++ through FFI.</li><li>Read callers, configuration, exports, packaging, and tests before implementation.</li><li>The file count remains open until the full source audit.</li></ul><doc-note>Source: <a href="https://github.com/tover0314-w/opentypeless/tree/f5ad60298f535e0fff716a749802138ee409dea7">upstream f5ad602</a>. Code excerpts use this snapshot. This page records the plan. See LOCAL-DEVELOPMENT.md for the implementation status.</doc-note></doc-claim>
+<doc-note>UI consistency: @shadcn/lint, shared tokens and CSS-variable geometry. Details: design-rules.md.</doc-note>
+</doc-plan></main>
+</body></html>

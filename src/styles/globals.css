@@ -1,0 +1,538 @@
+@import 'tailwindcss';
+@import './dynamic-ui.css';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --breakpoint-settings: 52.5rem;
+
+  /* Clean neutral palette */
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #e0e0e0;
+  --color-bg-elevated: #ffffff;
+
+  --color-text-primary: #1a1a1a;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+
+  --color-accent: #2abba7;
+  --color-accent-hover: #22a08e;
+  --color-accent-light: #e6f7f5;
+
+  --color-success: #34c759;
+  --color-warning: #ff9500;
+  --color-error: #ff3b30;
+
+  --color-border: rgba(0, 0, 0, 0.08);
+  --color-border-focus: #2abba7;
+
+  /* Jelly palette tokens */
+  --color-jelly-primary: rgba(42, 187, 167, 0.2);
+  --color-jelly-glow: rgba(42, 187, 167, 0.3);
+
+  /* Font */
+  --font-sans:
+    system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell,
+    'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'JetBrains Mono', monospace;
+
+  /* Font sizes */
+  --text-caption: 11px;
+  --text-footnote: 13px;
+  --text-body: 15px;
+  --text-headline: 17px;
+  --text-title: 22px;
+
+  /* Border radius */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Easing */
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* Base styles */
+html {
+  color-scheme: light;
+}
+
+html.dark {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-sans);
+  font-weight: 450;
+  letter-spacing: -0.01em;
+  background: transparent;
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ─── Dark Mode ─── */
+.dark {
+  --color-bg-primary: #1a1a1a;
+  --color-bg-secondary: #242424;
+  --color-bg-tertiary: #2e2e2e;
+  --color-bg-elevated: #2a2a2a;
+
+  --color-text-primary: #f0f0f0;
+  --color-text-secondary: #a0a0a0;
+  --color-text-tertiary: #707070;
+
+  --color-accent-light: #1a3d37;
+
+  --color-border: rgba(255, 255, 255, 0.08);
+
+  --color-jelly-primary: rgba(42, 187, 167, 0.25);
+  --color-jelly-glow: rgba(42, 187, 167, 0.35);
+}
+
+/* Drag region */
+[data-tauri-drag-region] {
+  cursor: move;
+}
+
+/* ─── Dark Jelly Overrides ─── */
+.dark .jelly-surface {
+  background: #2a2a2a;
+}
+
+.dark .jelly-card {
+  background: #2e2e2e;
+}
+.dark .jelly-card::before {
+  background: transparent;
+}
+
+.dark .jelly-btn {
+  background: #333333;
+}
+.dark .jelly-btn::before {
+  background: transparent;
+}
+
+.dark .jelly-surface-flat {
+  background: #262626;
+}
+
+.dark .jelly-capsule {
+  background: #2e2e2e;
+}
+.dark .jelly-capsule::before {
+  background: transparent;
+}
+.dark .jelly-capsule::after {
+  background: transparent;
+}
+
+.dark .jelly-capsule-error {
+  background: #4a2020;
+}
+.dark .jelly-capsule-error::before {
+  background: transparent;
+}
+
+.dark .capsule-shimmer::after {
+  background: transparent;
+}
+
+.dark .capsule-progress-bar {
+  background: rgba(255, 255, 255, 0.04);
+}
+.dark .capsule-progress-bar::after {
+  background: rgba(255, 255, 255, 0.4);
+}
+.jelly-surface {
+  position: relative;
+  background: #ffffff;
+  border: none;
+  border-radius: 22px;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow: hidden;
+}
+.jelly-card {
+  position: relative;
+  background: #ffffff;
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.jelly-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: transparent;
+  border-radius: 20px 20px 0 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.jelly-card:hover {
+  transform: scale(1.02) translateY(-2px);
+}
+.jelly-btn {
+  position: relative;
+  background: #ffffff;
+  border: none;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.jelly-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: transparent;
+  border-radius: 14px 14px 0 0;
+  pointer-events: none;
+}
+.jelly-btn:hover {
+  transform: scale(1.04);
+}
+.jelly-btn:active {
+  transform: scaleX(1.06) scaleY(0.94);
+}
+
+/* ─── Jelly Nav Active — accent gel indicator ─── */
+.jelly-nav-active {
+  background: #2abba7;
+  border-radius: 12px;
+  color: white !important;
+}
+
+/* ─── Jelly Capsule — minimal white/grey gel orb ─── */
+.jelly-capsule {
+  position: relative;
+  background: #ffffff;
+  border-radius: 9999px;
+  border: none;
+  overflow: hidden;
+}
+.jelly-capsule::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 55%;
+  height: 40%;
+  background: transparent;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.jelly-capsule::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Jelly Capsule — recording active (dark grey/black gel) ─── */
+.jelly-capsule-active {
+  position: relative;
+  background: #3a3a3a;
+  border-radius: 9999px;
+  border: none;
+  overflow: hidden;
+}
+.jelly-capsule-active::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 55%;
+  height: 40%;
+  background: transparent;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.jelly-capsule-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Jelly Capsule — error state (mid-grey gel) ─── */
+.jelly-capsule-error {
+  position: relative;
+  background: #666;
+  border-radius: 9999px;
+  border: none;
+  overflow: hidden;
+}
+.jelly-capsule-error::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  left: 12%;
+  width: 55%;
+  height: 40%;
+  background: transparent;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+}
+.jelly-capsule-error::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: transparent;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ─── Jelly Surface Flat — no border-radius, for sidebars ─── */
+.jelly-surface-flat {
+  background: #ffffff;
+  border: none;
+}
+
+/* ─── Jelly Button Accent — for primary CTA buttons ─── */
+.jelly-btn-accent {
+  border: none;
+  border-radius: 9999px;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.jelly-btn-accent:hover {
+  transform: scale(1.04);
+}
+.jelly-btn-accent:active {
+  transform: scaleX(1.06) scaleY(0.94);
+}
+
+/* ─── Shimmer sweep — left-to-right loading bar ─── */
+@keyframes shimmer-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+.capsule-shimmer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 2;
+}
+.capsule-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  animation: shimmer-sweep 1.5s ease-in-out infinite;
+}
+
+/* ─── Polishing progress bar — bottom sweep ─── */
+@keyframes progress-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+.capsule-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
+  border-radius: 0 0 9999px 9999px;
+  pointer-events: none;
+  z-index: 3;
+  background: rgba(255, 255, 255, 0.08);
+}
+.capsule-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.4);
+  animation: progress-sweep 1.2s ease-in-out infinite;
+}
+
+/* ─── Jelly Keyframes ─── */
+@keyframes jelly-wobble {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scaleX(1.05) scaleY(0.95);
+  }
+  50% {
+    transform: scaleX(0.97) scaleY(1.03);
+  }
+  75% {
+    transform: scaleX(1.02) scaleY(0.98);
+  }
+}
+
+@keyframes jelly-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04) scaleX(1.02);
+  }
+}
+
+.context-app-count--compact {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .context-app--compact-duplicate,
+  .context-app-count--full {
+    display: none;
+  }
+
+  .context-app-count--compact {
+    display: inline;
+  }
+}
+
+/* ─── Reduced Motion ─── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .jelly-card:hover,
+  .jelly-btn:hover,
+  .jelly-btn:active,
+  .jelly-btn-accent:hover,
+  .jelly-btn-accent:active {
+    transform: none !important;
+  }
+}
+
+/* macOS-style scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-text-tertiary);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-secondary);
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Flat component geometry; keep the existing light/dark palette. */
+.jelly-surface,
+.jelly-card,
+.jelly-btn {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.jelly-card:hover,
+.jelly-btn:hover,
+.jelly-btn:active {
+  transform: none;
+}
+.jelly-card::before,
+.jelly-btn::before {
+  display: none;
+}
+.jelly-nav-active {
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Viewport-bound overlays preserve native window safe insets. */
+@utility max-h-popup {
+  max-height: calc(100vh - 24px);
+}
+@utility w-toast {
+  width: min(360px, calc(100vw - 32px));
+}
+
+/* Shared settings form/table layouts; action column is consistently 4rem. */
+@utility grid-cols-dictionary-form {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+@utility grid-cols-dictionary-entry {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 4rem;
+}
+@utility grid-cols-correction-entry {
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr) 4rem;
+}
+@utility grid-cols-dictionary-term {
+  grid-template-columns: auto minmax(0, 1fr) 4rem;
+}
+@utility grid-cols-scene-form {
+  grid-template-columns: minmax(0, 1fr) minmax(140px, 180px);
+}
+@utility max-h-dialog {
+  max-height: 72vh;
+}
