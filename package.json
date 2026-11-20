@@ -23,16 +23,18 @@
   "author": "TypelessLocal contributors",
   "license": "MIT",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "dev": "node scripts/dev-dioxus.mjs",
+    "build": "node scripts/build-dioxus.mjs --release && tsc && vite build",
     "preview": "vite preview",
-    "tauri": "tauri",
+    "tauri": "node scripts/tauri.mjs",
     "lint": "eslint src/",
     "format": "prettier --write src/",
     "format:check": "prettier --check src/",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint:ui:check": "node scripts/check-design-rules.mjs"
+    "lint:ui:check": "node scripts/check-design-rules.mjs",
+    "check:ui": "cargo check --manifest-path frontend/Cargo.toml --target wasm32-unknown-unknown --locked",
+    "test:ui": "cargo test --manifest-path frontend/Cargo.toml --locked"
   },
   "dependencies": {
     "@tauri-apps/api": "2.11.0",
@@ -46,6 +48,7 @@
     "better-auth": "1.6.25",
     "framer-motion": "^11.18",
     "i18next": "^24.2",
+    "kubai-icons": "0.10.0",
     "lucide-react": "^0.460",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

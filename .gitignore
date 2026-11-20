@@ -70,3 +70,8 @@ models/*.part
 
 # Build cache after workspace rename
 src-tauri/target-typelesslocal/
+
+# Dioxus generated assets
+frontend/target/
+public/dioxus/
+public/dioxus.staging/

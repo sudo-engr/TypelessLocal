@@ -2,7 +2,11 @@
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
   "description": "Capability for the main window",
-  "windows": ["main", "capsule", "ask"],
+  "windows": [
+    "main",
+    "capsule",
+    "ask"
+  ],
   "permissions": [
     "core:default",
     "core:window:default",
@@ -27,6 +31,8 @@
     "clipboard-manager:allow-read-text",
     "clipboard-manager:allow-write-text",
     "autostart:default",
-    "process:default"
+    "process:default",
+    "core:window:allow-set-focusable",
+    "opener:allow-open-url"
   ]
 }
